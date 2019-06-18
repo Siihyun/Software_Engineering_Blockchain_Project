@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Blockchain Frontend</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendor/DataTables/css/datatables.min.css" rel="stylesheet">
+    <style>
+    label{color:white;}
+    .dataTables_info {color:white;}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="/static/css/custom.css" rel="stylesheet">
+
+  </head>
+
+  <body style = "background-color:#292A2F">
+      <!-- Navigation -->
+      <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+          <div class="container">
+              <a class="navbar-brand" href="#">Blockchain Frontend</a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarResponsive">
+                  <ul class="navbar-nav ml-auto">
+                      <li class="nav-item active">
+                          <a class="nav-link" href="/">
+                              채굴
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="/configure">구성
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="/participants">참여자
+                              <span class="sr-only">(current)</span>
+                          </a>
+                      </li>
+                  </ul>
+              </div>
+          </div>
+      </nav>
+      <!--  -->
+        
+      <!-- Unmined Transactions Table -->
+      <div class="container">
+          <table id="unmined_transactions_table" class="table table-bordered" cellspacing="0" width="100%"style="color:white;background-color:transparent"></table>
+          <div class="col-lg-12 text-center">
+              <input type="button" id="mine_button" class="btn btn-default btn-lg" value="Renew">
+          </div>
+      </div>
+      <hr>
+      <div class="container">
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="card-body">
+                      <h4 class="card-title"style = "color:white">
+                          참여노드 정보 &nbsp;&nbsp;&nbsp;
+                          <button type="submit" id="refresh_blockchain" class="btn btn-sq-xs btn-default">
+                              <i class="fa fa-refresh"></i>
+                          </button>
+                      </h4>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <!-- Blockchain Transactions Table -->
+      <div class="container"style="color:white">
+          <table id="transactions_table" class="table table-striped table-bordered" cellspacing="0" width="100%"></table>
+      </div>
+      <!-- Bootstrap core JavaScript -->
+      <script src="/static/vendor/jquery/jquery.min.js"></script>
+      <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script type="text/javascript" src="/static/vendor/DataTables/js/datatables.min.js"></script>
+      <script src="/static/vendor/DataTables/js/ellipsis.js"></script>
+
+      <script>$(function(){
+
+        $.ajax({
+          url: "/chain",
+          type: 'GET',
+          success: function(response){
+
+            //console.log(response);
+            //Generate Transactions Table
+              var transactions = [];
+              var array = [5001, 5002, 8080, 8081, 5003];
+              var info = ["MINER", "MINER", "USER", "USER", "MINER"];
+            count = 1;
+            for (i = 1; i < response.length; i++) {
+              for (j = 0; j < response["chain"][i]["transactions"].length; j++) {
+
+                //format date
+                var options = {  year: "numeric", month: "short",  day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit"  };
+                var date = new Date(response["chain"][i]["timestamp"] * 1000);
+                var formattedDateTime = date.toLocaleTimeString("en-us", options);
+
+                transaction = [count,
+                              response["chain"][i]["transactions"][j]["recipient_address"],
+                              info[i],
+                              array[i],
+                              formattedDateTime,
+                              ];
+                transactions.push(transaction);
+
+                count += 1;
+              };
+            };
+
+            // Restrict a column to 10 characters, do split words
+              $('#transactions_table').dataTable( {
+                data: transactions,
+                columns: [{ title: "#" },
+                          { title: "주소"},
+                          { title: "참여노드 유형"},
+                          { title: "포트 번호"},
+                          { title: "입장 시간"},
+                          ],
+                columnDefs: [ {targets: [1,2,3,4], render: $.fn.dataTable.render.ellipsis( 25 )}]
+              } );
+              $(".dataTables_info").css({"color":"white"});
+              $(".even").css({"background-color":"#292A2F","color":"white"})
+
+          },
+          error: function(error){
+            console.log(error);
+          }
+        });
+
+
+        $("#mine_button").click(function () {
+
+          $.ajax({
+            url: "/mine",
+            type: "GET",
+            success: function(response){
+
+              window.location.reload();
+
+            },
+            error: function(error){
+              console.log(error);
+            }
+          });
+
+        });
+
+
+        $("#refresh_transactions").click(function () {
+
+          window.location.reload();
+
+        });
+
+
+        $("#refresh_blockchain").click(function () {
+
+          $.ajax({
+            url: "/nodes/resolve",
+            type: "GET",
+            success: function(response){
+
+              window.location.reload();
+
+            },
+            error: function(error){
+              console.log(error);
+            }
+          });
+
+        });
+
+
+
+
+      })</script>
+
+  </body>
+
+</html>
