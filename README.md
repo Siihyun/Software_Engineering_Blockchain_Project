@@ -1,6 +1,8 @@
 # blockchainPRJ
 -----------------------
-- Simple implementation of blockchain
+- Simple implementation of blockchain using python & flask
 - Youtube Video link
-- https://www.youtube.com/watch?time_continue=6&v=I78pcHB2yao
+
+   [![Video Label](http://img.youtube.com/vi/UeVeMjsE1kQ/0.jpg)](https://youtu.be/UeVeMjsE1kQ)
+ 
 
